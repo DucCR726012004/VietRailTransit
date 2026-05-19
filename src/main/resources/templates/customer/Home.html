@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/_customer_layout}">
+
+<head>
+    <title>Tìm Kiếm Chuyến Tàu</title>
+
+    <style>
+
+        body{
+        font-family:'Be Vietnam Pro',sans-serif;
+        background:linear-gradient(180deg,#e9f1ff,#f5f8ff);
+        }
+
+        /* HERO */
+
+        .hero-slider{
+        width:100%;
+        height:520px;
+        position:relative;
+        overflow:hidden;
+        }
+
+        .hero-slide{
+        position:absolute;
+        width:100%;
+        height:100%;
+        background-size:cover;
+        background-position:center;
+        opacity:0;
+        animation:fadeZoom 18s infinite;
+        }
+
+        .hero-slide:nth-child(1){animation-delay:0s;}
+        .hero-slide:nth-child(2){animation-delay:6s;}
+        .hero-slide:nth-child(3){animation-delay:12s;}
+
+        @keyframes fadeZoom{
+        0%{opacity:0;transform:scale(1);}
+        10%{opacity:1}
+        40%{opacity:1;transform:scale(1.08)}
+        55%{opacity:0;transform:scale(1.12)}
+        100%{opacity:0}
+        }
+
+        .hero-overlay{
+        position:absolute;
+        width:100%;
+        height:100%;
+        background:linear-gradient(to bottom,rgba(0,42,102,0.25),rgba(0,42,102,0.55));
+        }
+
+        /* TRAIN */
+
+        .train-animation{
+        position:absolute;
+        bottom:40px;
+        left:-200px;
+        font-size:50px;
+        animation:trainMove 18s linear infinite;
+        z-index:2;
+        }
+
+        @keyframes trainMove{
+        0%{left:-200px;}
+        100%{left:110%;}
+        }
+
+        /* SEARCH */
+
+        .search-form-container{
+        background:white;
+        padding:36px;
+        border-radius:18px;
+        max-width:820px;
+        margin:-110px auto 60px auto;
+        box-shadow:0 20px 60px rgba(0,0,0,0.12);
+        border:1px solid #e6edf6;
+        position:relative;
+        z-index:5;
+        }
+
+        .page-title{
+        font-size:28px;
+        font-weight:700;
+        text-align:center;
+        margin-bottom:25px;
+        color:#002a66;
+        }
+
+        .form-label{
+        font-weight:600;
+        color:#003e8a;
+        }
+
+        .form-select,input[type=date]{
+        border-radius:10px;
+        padding:10px 12px;
+        border:1px solid #cdd8e6;
+        }
+
+        .btn-primary{
+        background:linear-gradient(135deg,#0066ff,#004ed6);
+        border:none;
+        border-radius:10px;
+        padding:12px 24px;
+        color:white;
+        font-weight:600;
+        }
+
+        .no-results{
+        margin-top:25px;
+        background:rgba(255,77,77,0.95);
+        border-left:5px solid #d32f2f;
+        padding:14px 18px;
+        border-radius:10px;
+        font-weight:600;
+        color:#fff;
+        text-align:center;
+        }
+
+        #return-date-group{
+        display:none;
+        }
+
+        /* TITLES */
+
+        h2{
+        color:#002a66;
+        font-weight:700;
+        margin-bottom:10px;
+        }
+
+        /* DESTINATIONS */
+
+        .info-section{
+        max-width:1100px;
+margin:80px auto;
+text-align:center;
+background:#ffffff;
+padding:60px 40px;
+border-radius:16px;
+box-shadow:0 12px 35px rgba(0,0,0,0.08);
+        }
+
+        .info-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+        gap:25px;
+        margin-top:30px;
+        }
+
+        .info-card{
+        background:#fff;
+        border-radius:14px;
+        padding:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,.05);
+        transition:0.3s;
+        cursor:pointer;
+        }
+
+        .info-card img{
+        width:100%;
+        border-radius:10px;
+        margin-bottom:10px;
+        transition:0.4s;
+        }
+
+        .info-card:hover{
+        transform:translateY(-8px);
+        box-shadow:0 18px 40px rgba(0,0,0,.12);
+        }
+
+        .info-card:hover img{
+        transform:scale(1.05);
+        }
+
+        /* STATS */
+
+        .stats-section{
+        background:linear-gradient(135deg,#002a66,#0047b3);
+        padding:80px 20px;
+        margin-top:80px;
+        }
+
+        .stats-container{
+        max-width:1100px;
+        margin:auto;
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+        gap:30px;
+        }
+
+        .stat-card{
+        background:white;
+        border-radius:14px;
+        padding:30px;
+        text-align:center;
+        box-shadow:0 10px 30px rgba(0,0,0,0.1);
+        transition:0.3s;
+        }
+
+        .stat-card:hover{
+        transform:translateY(-8px);
+        }
+
+        .stat-card h2{
+        font-size:36px;
+        font-weight:800;
+        color:#002a66;
+        margin-bottom:6px;
+        }
+
+        .stat-card p{
+        font-size:15px;
+        color:#555;
+        }
+
+        /* ABOUT */
+
+        .about-railway{
+        padding:80px 20px;
+        background:linear-gradient(135deg,#f0f6ff,#e6f0ff);
+        }
+
+        .about-container{
+        max-width:1100px;
+        margin:auto;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:50px;
+        align-items:center;
+        }
+
+        .about-image img{
+        width:100%;
+        border-radius:14px;
+        }
+
+        .about-text h2{
+        font-size:32px;
+        margin-bottom:20px;
+        }
+
+        /* MAP */
+
+        .railway-map{
+        padding:80px 20px;
+        text-align:center;
+        background:#eaf2ff;
+        }
+
+        .map-container{
+        margin-top:30px;
+        text-align:center;
+        }
+
+        .map-container img{
+        width:420px;
+        max-width:100%;
+        border-radius:14px;
+        box-shadow:0 10px 30px rgba(0,0,0,.1);
+        transition:0.3s;
+        }
+
+        .map-container img:hover{
+        transform:scale(1.05);
+        }
+
+        /* REVIEWS */
+
+        .reviews{
+        padding:80px 20px;
+        text-align:center;
+        background:##f0f6ff;
+        }
+
+        .review-container{
+        margin-top:40px;
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        gap:30px;
+        max-width:1000px;
+        margin:auto;
+        }
+
+        .review-card{
+        background:white;
+        padding:30px;
+        border-radius:12px;
+        box-shadow:0 6px 18px rgba(0,0,0,.05);
+        transition:0.3s;
+        }
+
+        .review-card:hover{
+        transform:translateY(-6px);
+        box-shadow:0 15px 35px rgba(0,0,0,.12);
+        }
+
+        /* FOOTER */
+
+        .footer{
+        background:#002a66;
+        color:white;
+        padding:60px 20px;
+        margin-top:80px;
+        }
+
+        .footer-container{
+        max-width:1100px;
+        margin:auto;
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+        gap:40px;
+        }
+
+        .footer h4{
+        margin-bottom:15px;
+        font-size:18px;
+        }
+
+        .footer a{
+        display:block;
+        color:#c6d5ff;
+        text-decoration:none;
+        margin-bottom:8px;
+        transition:0.3s;
+        }
+
+        .footer a:hover{
+        color:white;
+        padding-left:5px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="hero-slider">
+        <div class="hero-slide" style="background-image:url('/images/hero1.jpg')"></div>
+        <div class="hero-slide" style="background-image:url('/images/hero2.png')"></div>
+        <div class="hero-slide" style="background-image:url('/images/hero3.jpg')"></div>
+        <div class="hero-overlay"></div>
+        <div class="train-animation">🚆</div>
+    </div>
+
+    <div class="search-form-container">
+
+        <h2 class="page-title">Tìm Kiếm Chuyến Tàu</h2>
+
+        <div th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/trips/search}" method="GET">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Ga Xuất Phát</label>
+                    <select name="startStationId" class="form-select" required>
+                        <option value="">Chọn Ga Xuất Phát</option>
+                        <option th:each="station : ${allStations}"
+                                th:value="${station.id}"
+                                th:text="|${station.name} (${station.code})|"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Ga Đích</label>
+                    <select name="endStationId" class="form-select" required>
+                        <option value="">Chọn Ga Đích</option>
+                        <option th:each="station : ${allStations}"
+                                th:value="${station.id}"
+                                th:text="|${station.name} (${station.code})|"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Khởi Hành</label>
+                    <input type="date" name="departureDate" id="departureDate" class="form-select" required>
+                </div>
+
+                <div class="col-md-6" id="return-date-group">
+                    <label class="form-label">Ngày Về</label>
+                    <input type="date" name="returnDate" id="returnDate" class="form-select">
+                </div>
+
+                <div class="col-12">
+                    <input type="checkbox" name="isRoundTrip" value="true" id="roundTripCheck"> Khứ hồi
+                </div>
+
+            </div>
+
+            <div style="margin-top:20px;text-align:center">
+                <button type="submit" class="btn-primary">Tìm Chuyến</button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- DESTINATION -->
+
+    <div class="info-section">
+
+        <h2>Điểm đến nổi bật</h2>
+
+        <div class="info-grid">
+
+            <div class="info-card">
+                <img src="/images/hanoi.jpg">
+                <h5>Hà Nội</h5>
+            </div>
+
+            <div class="info-card">
+                <img src="/images/hue.jpg">
+                <h5>Huế</h5>
+            </div>
+
+            <div class="info-card">
+                <img src="/images/danang.jpg">
+                <h5>Đà Nẵng</h5>
+            </div>
+
+            <div class="info-card">
+                <img src="/images/nhatrang.jpg">
+                <h5>Nha Trang</h5>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- STATS -->
+
+    <section class="stats-section">
+
+        <div class="stats-container">
+
+            <div class="stat-card"><h2>500K+</h2><p>Vé đã bán</p></div>
+            <div class="stat-card"><h2>120+</h2><p>Ga tàu</p></div>
+            <div class="stat-card"><h2>30+</h2><p>Tuyến tàu</p></div>
+            <div class="stat-card"><h2>98%</h2><p>Khách hài lòng</p></div>
+
+        </div>
+
+    </section>
+
+    <!-- ABOUT -->
+
+    <section class="about-railway">
+
+        <div class="about-container">
+
+            <div class="about-image">
+                <img src="/images/train01.jpg">
+            </div>
+
+            <div class="about-text">
+                <h2>Đường Sắt Việt Nam</h2>
+                <p>Hệ thống đường sắt Bắc Nam dài hơn 1700km mang lại hành trình an toàn và thú vị.</p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- MAP -->
+
+    <section class="railway-map">
+
+        <h2>Bản Đồ Tuyến Đường Sắt Việt Nam</h2>
+
+        <p>Hệ thống đường sắt Bắc Nam kết nối các thành phố lớn trên khắp đất nước Việt Nam.</p>
+
+        <div class="map-container">
+            <img src="/images/railway-map.jpg">
+        </div>
+
+    </section>
+
+    <!-- REVIEWS -->
+
+    <section class="reviews">
+
+        <h2>Khách Hàng Nói Gì</h2>
+
+        <div class="review-container">
+
+            <div class="review-card">
+                <p>"Trải nghiệm tàu Bắc Nam tuyệt vời."</p>
+                <h4>Nguyễn Minh</h4>
+            </div>
+
+            <div class="review-card">
+                <p>"Đặt vé nhanh và tiện lợi."</p>
+                <h4>Trần Hoàng</h4>
+            </div>
+
+            <div class="review-card">
+                <p>"Cung đường đèo Hải Vân rất đẹp."</p>
+                <h4>Lê Anh</h4>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+                <h4>Vietnam Railways</h4>
+                <p>Hệ thống đặt vé tàu trực tuyến.</p>
+            </div>
+
+            <div>
+                <h4>Liên kết</h4>
+                <a href="#">Trang chủ</a>
+                <a href="#">Tìm chuyến tàu</a>
+                <a href="#">Khuyến mãi</a>
+                <a href="#">Liên hệ</a>
+            </div>
+
+            <div>
+                <h4>Liên hệ</h4>
+                <a href="#">support@railway.vn</a>
+                <a href="#">1900 1234</a>
+                <a href="#">Hà Nội, Việt Nam</a>
+            </div>
+
+        </div>
+
+    </footer>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded',function(){
+
+        const roundTripCheck=document.getElementById('roundTripCheck');
+        const returnDateGroup=document.getElementById('return-date-group');
+        const returnDateInput=document.getElementById('returnDate');
+        const departureDateInput=document.getElementById('departureDate');
+
+        roundTripCheck.addEventListener('change',function(){
+
+        if(this.checked){
+        returnDateGroup.style.display='block';
+        returnDateInput.required=true;
+        }else{
+        returnDateGroup.style.display='none';
+        returnDateInput.required=false;
+        returnDateInput.value='';
+        }
+
+        });
+
+        departureDateInput.addEventListener('change',function(){
+        if(departureDateInput.value){
+        returnDateInput.min=departureDateInput.value;
+        }
+        });
+
+        const today=new Date().toISOString().split('T')[0];
+        departureDateInput.min=today;
+
+        });
+
+    </script>
+
+</div>
+
+</body>
+</html>

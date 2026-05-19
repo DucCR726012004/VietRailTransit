@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/_admin_layout}">
+<head>
+    <title>Quản Lý Người Dùng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/train01.jpg') center/cover no-repeat fixed;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .container-card {
+            backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 30px 25px;
+            margin: 30px auto;
+            max-width: 1100px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+        .page-title {
+            font-weight: 700;
+            font-size: 30px;
+            color: #004a99;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 140px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card.total {
+            background: linear-gradient(135deg, #009ffd, #2a2a72);
+        }
+
+        .stat-card.active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .stat-card.locked {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+
+        .stat-card i {
+            font-size: 28px;
+            opacity: 0.85;
+        }
+
+        .stat-card .stat-info .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-card .stat-info .stat-label {
+            font-size: 0.78rem;
+            opacity: 0.85;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #009ffd, #2a2a72);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-outline-success {
+            border: 2px solid #28a745;
+            color: #28a745;
+            background: transparent;
+        }
+
+        .btn-outline-success:hover {
+            background: #28a745;
+            color: #fff;
+        }
+
+        table {
+            background: rgba(255,255,255,0.85);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        table th {
+            background: linear-gradient(135deg,#009ffd,#2a2a72);
+            color: #fff;
+        }
+
+        table tr:hover {
+            background: rgba(0,159,253,0.15);
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .search-form {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #009ffd, #2a2a72);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+
+        .user-name-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btns .btn {
+            font-size: 0.8rem;
+            padding: 5px 12px;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop-custom {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop-custom.show {
+            display: flex;
+        }
+
+        .modal-content-custom {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+            text-align: center;
+        }
+
+        .modal-content-custom .modal-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content-custom .modal-icon.lock {
+            color: #dc3545;
+        }
+
+        .modal-content-custom .modal-icon.unlock {
+            color: #28a745;
+        }
+
+        .modal-content-custom h4 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .modal-content-custom p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-content-custom .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .row-locked {
+            opacity: 0.65;
+            background: rgba(220, 53, 69, 0.05) !important;
+        }
+
+        @media (max-width: 768px) {
+            .container-card { padding: 20px 15px; }
+            .page-title { font-size: 26px; }
+            .action-btns { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-card">
+        <h2 class="page-title"><i class="bi bi-people-fill"></i> Quản Lý Người Dùng</h2>
+        <p class="page-subtitle">Xem, chỉnh sửa thông tin và quản lý trạng thái tài khoản người dùng</p>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-row">
+            <div class="stat-card total">
+                <i class="bi bi-people"></i>
+                <div class="stat-info">
+                    <span class="stat-number" th:text="${totalItems}">0</span>
+                    <span class="stat-label">Tổng người dùng</span>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <i class="bi bi-person-check"></i>
+                <div class="stat-info">
+                    <span class="stat-number" th:text="${#lists.size(users.?[!locked])}">0</span>
+                    <span class="stat-label">Đang hoạt động</span>
+                </div>
+            </div>
+            <div class="stat-card locked">
+                <i class="bi bi-person-lock"></i>
+                <div class="stat-info">
+                    <span class="stat-number" th:text="${#lists.size(users.?[locked])}">0</span>
+                    <span class="stat-label">Đã bị khóa</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <form th:action="@{/users}" method="get" class="search-form">
+            <div class="input-group">
+                <span class="input-group-text" style="border-radius: 10px 0 0 10px; background: rgba(255,255,255,0.8); border: none;">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control"
+                       placeholder="Tìm theo Email, Họ tên hoặc Số điện thoại..."
+                       style="border: none; border-radius: 0;">
+                <button type="submit" class="btn btn-primary" style="border-radius: 0 10px 10px 0;">Tìm kiếm</button>
+                <a th:href="@{/users}" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Người Dùng</th>
+                    <th>Email</th>
+                    <th>Số Điện Thoại</th>
+                    <th>Vai Trò</th>
+                    <th>Ngày Tạo</th>
+                    <th>Trạng Thái</th>
+                    <th class="text-center">Hành Động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}" th:classappend="${user.locked} ? 'row-locked' : ''">
+                    <td th:text="${user.id}"></td>
+                    <td>
+                        <div class="user-name-cell">
+                            <div class="user-avatar" th:text="${#strings.substring(user.fullName, 0, 1).toUpperCase()}">A</div>
+                            <span th:text="${user.fullName}">Nguyễn Văn A</span>
+                        </div>
+                    </td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td>
+                        <span th:if="${user.role.name() == 'STAFF'}" class="badge bg-warning text-dark">
+                            <i class="bi bi-shield-check"></i> STAFF
+                        </span>
+                        <span th:if="${user.role.name() == 'CUSTOMER'}" class="badge bg-info text-dark">
+                            <i class="bi bi-person"></i> CUSTOMER
+                        </span>
+                    </td>
+                    <td th:text="${user.createDate != null ? #temporals.format(user.createDate, 'dd/MM/yyyy') : 'N/A'}"></td>
+                    <td>
+                        <span th:if="${!user.locked}" class="badge bg-success">
+                            <i class="bi bi-unlock-fill"></i> Hoạt động
+                        </span>
+                        <span th:if="${user.locked}" class="badge bg-danger">
+                            <i class="bi bi-lock-fill"></i> Đã khóa
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-warning"
+                               title="Chỉnh sửa">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </a>
+                            <button type="button" class="btn btn-sm"
+                                    th:classappend="${user.locked} ? 'btn-outline-success' : 'btn-outline-danger'"
+                                    th:attr="onclick='showLockModal(' + ${user.id} + ', \'' + ${user.fullName} + '\', ' + ${user.locked} + ')'"
+                                    th:title="${user.locked} ? 'Mở khóa tài khoản' : 'Khóa tài khoản'">
+                                <i th:class="${user.locked} ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"></i>
+                                <span th:text="${user.locked} ? 'Mở khóa' : 'Khóa'"></span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="8" class="text-center py-4">
+                        <i class="bi bi-inbox" style="font-size: 2rem; color: #999;"></i>
+                        <p class="mt-2 mb-0" style="color: #999;">Không tìm thấy người dùng nào.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">⬅ Quay Lại Dashboard</a>
+    </div>
+
+    <!-- Lock/Unlock Confirmation Modal -->
+    <div class="modal-backdrop-custom" id="lockModal">
+        <div class="modal-content-custom">
+            <div class="modal-icon" id="modalIcon">
+                <i id="modalIconElement" class="bi bi-lock-fill"></i>
+            </div>
+            <h4 id="modalTitle">Xác nhận</h4>
+            <p id="modalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeLockModal()">Hủy bỏ</button>
+                <a id="modalConfirmBtn" href="#" class="btn btn-danger">Xác nhận</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLockModal(userId, userName, isLocked) {
+            const modal = document.getElementById('lockModal');
+            const icon = document.getElementById('modalIcon');
+            const iconElement = document.getElementById('modalIconElement');
+            const title = document.getElementById('modalTitle');
+            const message = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+
+            if (isLocked) {
+                // Unlock
+                icon.className = 'modal-icon unlock';
+                iconElement.className = 'bi bi-unlock-fill';
+                title.textContent = 'Mở khóa tài khoản';
+                message.textContent = 'Bạn có chắc chắn muốn MỞ KHÓA tài khoản của "' + userName + '"?';
+                confirmBtn.className = 'btn btn-success';
+                confirmBtn.textContent = 'Mở khóa';
+            } else {
+                // Lock
+                icon.className = 'modal-icon lock';
+                iconElement.className = 'bi bi-lock-fill';
+                title.textContent = 'Khóa tài khoản';
+                message.textContent = 'Bạn có chắc chắn muốn KHÓA tài khoản của "' + userName + '"? Người dùng sẽ không thể đăng nhập.';
+                confirmBtn.className = 'btn btn-danger';
+                confirmBtn.textContent = 'Khóa tài khoản';
+            }
+
+            confirmBtn.href = '/users/toggle-lock/' + userId;
+            modal.classList.add('show');
+        }
+
+        function closeLockModal() {
+            document.getElementById('lockModal').classList.remove('show');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('lockModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLockModal();
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

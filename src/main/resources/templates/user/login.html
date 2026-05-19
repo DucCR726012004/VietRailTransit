@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng Nhập - Vé Tàu Việt Nam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-color: #009ffd;
+            --secondary-color: #2a2a72;
+            --accent-color: #f9ca24;
+            --bg-page: #f0f4f8;
+            --card-bg: rgba(255,255,255,0.2);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e0f7ff, #dbe6f1);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+        }
+
+        .login-card {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            backdrop-filter: blur(15px);
+            background: var(--card-bg);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity:0; transform: translateY(20px);}
+            to {opacity:1; transform: translateY(0);}
+        }
+
+        .login-left {
+            width:50%;
+            padding: 3rem 2.5rem;
+            display:flex;
+            flex-direction: column;
+            justify-content:center;
+        }
+
+        .login-left h1 {
+            color: var(--primary-color);
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-left p.slogan {
+            font-size: 1rem;
+            color: rgba(0,0,0,0.6);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width:100%;
+            padding:12px 40px 12px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.85);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 12px rgba(0,159,253,0.4);
+            outline: none;
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(50%); /* Chỉnh lại cho khớp label */
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        /* Căn icon cho input */
+        .form-group input ~ i {
+            transform: translateY(-50%);
+            top: 50%;
+        }
+        /* Căn icon cho label (khi input được focus) */
+        .form-group input:focus ~ i {
+            transform: translateY(-50%);
+            top: 50%;
+        }
+        /* Căn icon khi input đã có label */
+        .form-group label + input + i {
+            top: 60%; /* Điều chỉnh thủ công */
+        }
+
+
+        .login-button {
+            width:100%;
+            padding: 14px;
+            border:none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #009ffd, #2a2a72);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Right branding */
+        .login-right {
+            width:50%;
+            position: relative;
+            background: url('/images/train-bg.jpg') center/cover no-repeat;
+        }
+
+        .login-right::before {
+            content:"";
+            position: absolute;
+            inset:0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.25), rgba(0,0,0,0.7));
+        }
+
+        .branding-content {
+            position: absolute;
+            inset:0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--accent-color);
+            z-index:2;
+            padding: 20px;
+        }
+
+        .branding-content h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .branding-content p {
+            font-size: 1.1rem;
+        }
+
+        .alert-success {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        @media(max-width: 850px){
+            .login-card { flex-direction: column; max-width: 400px; }
+            .login-left, .login-right { width:100%; }
+            .login-right { height: 180px; }
+            .login-left { padding:2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+
+    <div class="login-left">
+        <h1>Đăng nhập hệ thống</h1>
+        <p class="slogan">Hệ thống quản lý và đặt vé tàu an toàn, tiện lợi và chuyên nghiệp</p>
+
+        <!-- THÊM: Hiển thị thông báo đăng ký thành công -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <!-- Hiển thị lỗi đăng nhập -->
+        <div th:if="${param.error != null && param.error[0] == 'invalid'}" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> Email hoặc mật khẩu không chính xác.
+        </div>
+        <div th:if="${param.error != null && param.error[0] == 'locked'}" class="alert alert-danger">
+            <i class="bi bi-lock-fill"></i> Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.
+        </div>
+
+        <form method="post" th:action="@{/login}">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="email@gmail.com" required>
+                <i class="bi bi-envelope-fill"></i>
+            </div>
+
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" name="password" id="password" placeholder="********" required>
+                <i class="bi bi-eye-slash toggle-password" onclick="togglePasswordVisibility('password', this)"></i>
+            </div>
+
+            <button type="submit" class="login-button">Đăng nhập</button>
+
+            <!-- THÊM LIÊN KẾT ĐĂNG KÝ -->
+            <div style="text-align: center; margin-top: 15px;">
+                <a th:href="@{/register}" style="color: #004a99; font-weight: 600;">Chưa có tài khoản? Đăng ký ngay</a>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="login-right">
+        <div class="branding-content">
+            <h2>VietRail Transit</h2>
+            <p>Di chuyển an toàn - Nhanh chóng - Tiện lợi</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function togglePasswordVisibility(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+</script>
+</body>
+</html>
