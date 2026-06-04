@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class AuthenticationFilter implements Filter {
+public class AuthenticationFilter  implements Filter {
 
     // 1. Các đường dẫn phải khớp CHÍNH XÁC
     private final List<String> publicExactPaths = List.of(
             "/",
             "/login",
             "/error",
-            "/register" // <-- THÊM MỚI
+            " /register" // <-- THÊM MỚI chinh xac
             ,"/favicon.ico"
     );
 
